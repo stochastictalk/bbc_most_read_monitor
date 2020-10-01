@@ -5,7 +5,7 @@ from os import mkdir
 
 # Make directory for today's entry
 date_string = datetime.today().strftime('%a_%d_%m_%y')
-dst_dir = './data/001_today/' + date_string
+dst_dir = './data/The Week front pages/' + date_string
 mkdir(dst_dir)
 
 # Get URLs for images of today's papers from The Week
