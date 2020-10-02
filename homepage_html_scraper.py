@@ -6,6 +6,10 @@ from datetime import datetime
 
 date_str = datetime.now().strftime('%a_%d_%m_%y')
 
+headers = { # necessary for scraping The Sun
+	'User-Agent':'Mozilla/5.0'
+}
+
 homepage_urls = {
 	'Guardian':'https://www.theguardian.com/uk',
 	'Times':'https://www.thetimes.co.uk/',
@@ -14,7 +18,6 @@ homepage_urls = {
 	'Sun':'https://www.thesun.co.uk/',
 	'Independent':'https://www.independent.co.uk/',
 	'Financial Times':'https://www.ft.com/',
-	
 }
 
 
@@ -25,7 +28,7 @@ for name, url in homepage_urls.items():
 	dst_path = './data/' + name + '/' + date_str + '.html'
 
 	try:
-		r = requests.get(url, timeout=5)
+		r = requests.get(url, headers=headers, timeout=5)
 	except requests.exceptions.ReadTimeout:
 		continue	
 
