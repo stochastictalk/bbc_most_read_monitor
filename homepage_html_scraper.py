@@ -14,6 +14,7 @@ homepage_urls = {
 	'Sun':'https://www.thesun.co.uk/',
 	'Independent':'https://www.independent.co.uk/',
 	'Financial Times':'https://www.ft.com/',
+	
 }
 
 
@@ -29,5 +30,5 @@ for name, url in homepage_urls.items():
 		continue	
 
 	dst_file = open(dst_path, 'w')
-	dst_file.write(r.content.decode(r.encoding))
+	dst_file.write(r.text)
 	dst_file.close()
