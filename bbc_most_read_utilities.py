@@ -15,7 +15,14 @@ def write_headlines_to_disk(html: str, dst_filepath: str):
 	
 	for n in range(1, 11):
 		r = soup.find(name='li', attrs={'data-entityid':'most-popular-read#{}'.format(n)})
-		file.write(r.text)
+		file.write(_parse_entry(r.text))
 
 	file.close()
 
+
+def _parse_entry(entry: str):
+	# Commar-separate headline and number
+	split_entry = entry.split('\n')
+	headline_n = split_entry[2]
+	headline_text = split_entry[3]
+	return(headline_n + ',' + headline_text + '\n')
