@@ -39,4 +39,4 @@ for fp in filepaths:
 	else:
 		headlines_df = headlines_df.join(file_df)
 	
-print(headlines_df)
+print(headlines_df.head(3))
