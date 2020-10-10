@@ -13,10 +13,6 @@ headers = {'User-Agent':'Mozilla/5.0'}
 r = requests.get(most_read_url, timeout=timeout, headers=headers)
 
 if 200 <= r.status_code and r.status_code < 300: # request successful
-	#file = open(dst_dir + '/bbc_most_read_' + time_of_request + '.html', 'w')
-	#file.write(r.text)
-	#file.close()
-	dst_filepath = dst_dir + '/bbc_most_read_' + time_of_request + '.txt'
-	write_headlines_to_disk(r.text, dst_filepath)
+	write_headlines_to_disk(r.text, dst_dir, time_of_request)
 else:
 	raise RuntimeError('Request failed: response status code {}.'.format(r.status_code))
