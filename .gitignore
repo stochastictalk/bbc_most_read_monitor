@@ -3,4 +3,5 @@
 *.jpeg
 *.html
 *.txt
+*.json
 /__pycache__
