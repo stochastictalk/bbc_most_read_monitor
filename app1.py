@@ -2,11 +2,12 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as dhtml
 from dash.dependencies import Input, Output
-from datetime import date
+from datetime import datetime, date, timezone, timedelta
 import plotly.express as px
 import pandas as pd
 from glob import glob
 import json
+import numpy as np
 
 # Gather headlines into a data frame
 filepaths = glob('./data/bbc_most_read/*.json')
@@ -39,6 +40,7 @@ app.layout = dhtml.Div([
 	dhtml.P('''
 			This app allows you to explore the most read articles on BBC News \
 			over time.
+
 	  		'''),
 
 	dhtml.Div([
@@ -46,7 +48,7 @@ app.layout = dhtml.Div([
 					  style={'font-weight':'bold',
 							 'width':'25%',
 							 'display':'inline-block'}),
-			dhtml.Div('Time of day',
+			dhtml.Div('Time of day (UTC)',
 					  style={'font-weight':'bold',
 							 'width':'75%',
 							 'display':'inline-block'})
@@ -57,9 +59,9 @@ app.layout = dhtml.Div([
 	dhtml.Div([
 			dhtml.Div(
 	  			dcc.DatePickerSingle(
-	  				calendar_orientation='vertical',
 	  	    		id='date-picker-single',
 	  	    		date=date.fromtimestamp(df['TIMESTAMP'].max()),
+					display_format='Do MMM YYYY'
 	  			),
 				style={'width':'25%', 'display':'inline-block'}
 			),
@@ -72,7 +74,7 @@ app.layout = dhtml.Div([
 			        marks={
 						t:str(t).zfill(2)+':00' for t in range(0, 25, 2)
 					},
-			        step=0.01,
+			        step=0.25,
 					included=False,
 				),
 				style={'width':'75%', 'display':'inline-block'}
@@ -80,20 +82,30 @@ app.layout = dhtml.Div([
 
 	dhtml.Br(),
 
-	dcc.Markdown(children='', id='my-output')
+	dcc.Markdown(children='', id='headlines-title-output'),
+
+	dcc.Markdown(children='', id='headlines-output')
 ],
 style={'width': '48%', 'margin':'auto'})
 
 # Define callbacks
 @app.callback(
-	Output(component_id='my-output', component_property='children'),
+	[Output(component_id='headlines-title-output',
+		 	component_property='children'),
+	Output(component_id='headlines-output', component_property='children')],
 	[Input(component_id='date-picker-single', component_property='date'),
 	 Input(component_id='time--slider', component_property='value')]
 )
 def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
-	return(input_yyyy_mm_dd + str(input_hour))
+	# Get the time, convert it to the nearest fifteen-minute timestamp
+	date_ts = datetime.strptime(input_yyyy_mm_dd, "%Y-%m-%d").timestamp()
+	ts = date_ts + input_hour*3600
+
+	unique_ts = df['TIMESTAMP'].unique() # numpy array
+	nearest_ts = unique_ts[np.argmin(np.abs(unique_ts - ts))]
+
 	# Retrieve headlines for time
-	df_rel_entries = df[df['TIMESTAMP']==input_t]
+	df_rel_entries = df[df['TIMESTAMP']==nearest_ts]
 	df_rel_entries.set_index('RANK', inplace=True)
 
 	# Display them
@@ -102,7 +114,11 @@ def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
 								df_rel_entries.loc[j,'HEADLINE'])
 													for j in range(1, 11)]
 											)
-	return(list_of_headlines)
+
+	f_nearest_ts = datetime.fromtimestamp(nearest_ts).strftime(
+														'%A %d %B %Y, %H:%M:%S')
+	headlines_title = '** Most Read at {} **'.format(f_nearest_ts)
+	return [headlines_title, list_of_headlines]
 
 if __name__ == '__main__':
 	app.run_server(debug=True)
