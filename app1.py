@@ -109,9 +109,11 @@ def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
 	df_rel_entries.set_index('RANK', inplace=True)
 
 	# Display them
+	bbc_root_dir = 'https://bbc.com'
 	list_of_headlines = ''.join(
-					['{}. {}\n'.format(j,
-								df_rel_entries.loc[j,'HEADLINE'])
+					['{}. [{}]({})\n'.format(j,
+								df_rel_entries.loc[j,'HEADLINE'],
+								bbc_root_dir+df_rel_entries.loc[j, 'URL'])
 													for j in range(1, 11)]
 											)
 
