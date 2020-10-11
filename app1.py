@@ -34,7 +34,9 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # Define app layout
 app.layout = dhtml.Div([
-	dhtml.H4('BBC Most Read Visualiser V0.1'),
+	dhtml.Div([
+	dhtml.H4('BBC Most Read Visualiser V1.0',
+			 style={'font-weight':'bold'}),
 
 	dcc.DatePickerSingle(
 		calendar_orientation='vertical',
@@ -45,17 +47,19 @@ app.layout = dhtml.Div([
 	dcc.Slider( # Time slider
         id='time--slider',
         min=0,
-        max=95,
-        value=48,
+        max=24,
+        value=18,
         marks={
-			t:str((t*15)//60) + ':' + str(t*15 % 60) for t in range(96)
+			t:str(t).zfill(2)+':00' for t in range(0, 25, 2)
 		},
-        step=None
+        step=0.01,
+		included=False
     ),
 
 	dhtml.Br(),
 
-	dcc.Markdown(children='', id='my-output')
+	dcc.Markdown(children='', id='my-output')],
+	style={'width': '48%', 'margin':'auto'})
 ])
 
 # Define callbacks
