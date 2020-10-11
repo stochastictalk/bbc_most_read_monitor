@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as dhtml
 from dash.dependencies import Input, Output
+from datetime import date
 import plotly.express as px
 import pandas as pd
 from glob import glob
@@ -35,12 +36,20 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = dhtml.Div([
 	dhtml.H4('BBC Most Read Visualiser V0.1'),
 
+	dcc.DatePickerSingle(
+		calendar_orientation='vertical',
+    	id='date-picker-single',
+    	date=date.fromtimestamp(df['TIMESTAMP'].max())
+	),
+
 	dcc.Slider( # Time slider
         id='time--slider',
-        min=df['TIMESTAMP'].min(),
-        max=df['TIMESTAMP'].max(),
-        value=df['TIMESTAMP'].max(),
-        marks={str(t): str(t) for t in df['TIMESTAMP'].unique()},
+        min=0,
+        max=95,
+        value=48,
+        marks={
+			t:str((t*15)//60) + ':' + str(t*15 % 60) for t in range(96)
+		},
         step=None
     ),
 
@@ -50,6 +59,7 @@ app.layout = dhtml.Div([
 ])
 
 # Define callbacks
+'''
 @app.callback(
 	Output(component_id='my-output', component_property='children'),
 	[Input(component_id='time--slider', component_property='value')]
@@ -67,6 +77,6 @@ def update_output_div(input_t):
 													for j in range(1, 11)]
 											)
 	return(list_of_headlines)
-
+'''
 if __name__ == '__main__':
 	app.run_server(debug=True)
