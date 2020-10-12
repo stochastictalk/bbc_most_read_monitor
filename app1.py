@@ -3,6 +3,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as dhtml
+import dash_table as dt
 from dash.dependencies import Input, Output
 from datetime import datetime, date, timezone, timedelta
 import plotly.express as px
@@ -28,6 +29,14 @@ for fp in filepaths:
 df = pd.DataFrame(list_of_records)
 df['TIMESTAMP'] = df['TIMESTAMP'].astype(int)
 df['RANK'] = df['RANK'].astype(int)
+
+# for testing
+df_test = pd.DataFrame(
+	{
+	 'Feature A':['Cuthbert', 'Hilbert', 'Dilbert'],
+	 'Feature B':[0.5, 0.1, 0.2]
+	}
+)
 
 # Want to develop a tool that has a time slider and renders the headlines
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -129,8 +138,8 @@ app.layout = dhtml.Div([
 	        id='2-time-interval',
 	        options=[
 	            {'label': '15 minutes', 'value': '15m'},
-	            {'label': '1 hour', 'value': '1hr'},
-	            {'label': '3 hours', 'value': '3hr'},
+	            {'label': '1 hour', 'value': '1h'},
+	            {'label': '3 hours', 'value': '3h'},
 				{'label': '1 day', 'value':'1d'}
 	        ],
 	        value='NYC'
@@ -151,6 +160,16 @@ app.layout = dhtml.Div([
 		style={'width':'50%', 'display':'inline-block'}
 		)
 	]),
+
+	dhtml.Div(
+		dt.DataTable(
+		    id='2-table',
+		    data=df_test.to_dict('records'),
+		)
+	),
+
+	dhtml.Div('hey')
+
 ],
 style={'width': '48%', 'margin':'auto'})
 
