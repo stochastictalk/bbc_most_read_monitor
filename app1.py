@@ -45,6 +45,12 @@ app.layout = dhtml.Div([
 
 	  		'''),
 
+	dhtml.Hr(),
+
+	# 1. Most Read on DATETIME
+	dhtml.H5('The 10 Most Read articles over time',
+			 style={'font-weight':'bold'}),
+
 	dhtml.Div([
 			dhtml.Div('Date',
 					  style={'font-weight':'bold',
@@ -61,7 +67,7 @@ app.layout = dhtml.Div([
 	dhtml.Div([
 			dhtml.Div(
 	  			dcc.DatePickerSingle(
-	  	    		id='date-picker-single',
+	  	    		id='1-date-picker-single',
 	  	    		date=date.fromtimestamp(df['TIMESTAMP'].max()),
 					display_format='Do MMM YYYY'
 	  			),
@@ -69,7 +75,7 @@ app.layout = dhtml.Div([
 			),
 			dhtml.Div(
 				dcc.Slider( # Time slider
-			        id='time--slider',
+			        id='1-time-slider',
 			        min=0,
 			        max=24,
 			        value=18,
@@ -86,17 +92,75 @@ app.layout = dhtml.Div([
 
 	dcc.Markdown(children='', id='headlines-title-output'),
 
-	dcc.Markdown(children='', id='headlines-output')
+	dcc.Markdown(children='', id='headlines-output'),
+
+	dhtml.Div(
+		dhtml.Hr(),
+		style={'width':'100%'}
+	),
+
+	# 2. MOST READ TIMELINE - choose time interval, date range
+	dhtml.H5('#1 Most Read article over time',
+			 style={'font-weight':'bold'}),
+
+	dhtml.Div([
+		dhtml.Div(
+			'Time interval',
+			style={'font-weight':'bold',
+			       'width':'30%',
+				   'display':'inline-block'}
+		),
+		dhtml.Div(
+			style={'width':'10%', 'display':'inline-block'}
+		),
+		dhtml.Div(
+			'Date range',
+			style={'font-weight':'bold',
+			       'width':'50%',
+				   'display':'inline-block'}
+		)
+	],
+	style={'width':'100%'}
+	),
+
+	dhtml.Div([
+		dhtml.Div(
+			dcc.Dropdown(
+	        id='2-time-interval',
+	        options=[
+	            {'label': '15 minutes', 'value': '15m'},
+	            {'label': '1 hour', 'value': '1hr'},
+	            {'label': '3 hours', 'value': '3hr'},
+				{'label': '1 day', 'value':'1d'}
+	        ],
+	        value='NYC'
+			),
+		style={'width':'30%', 'display':'inline-block'}
+		),
+		dhtml.Div(
+			style={'width':'10%', 'display':'inline-block'}
+		),
+		dhtml.Div(
+			dcc.DatePickerRange(
+				id='2-date-range',
+		        min_date_allowed=date.fromtimestamp(df['TIMESTAMP'].min()),
+		        max_date_allowed=date.fromtimestamp(df['TIMESTAMP'].max()),
+		        initial_visible_month=date.fromtimestamp(df['TIMESTAMP'].max()),
+		        end_date=date.fromtimestamp(df['TIMESTAMP'].max())
+			),
+		style={'width':'50%', 'display':'inline-block'}
+		)
+	]),
 ],
 style={'width': '48%', 'margin':'auto'})
 
 # Define callbacks
-@app.callback(
+@app.callback( # Most Read on DATETIME
 	[Output(component_id='headlines-title-output',
 		 	component_property='children'),
 	Output(component_id='headlines-output', component_property='children')],
-	[Input(component_id='date-picker-single', component_property='date'),
-	 Input(component_id='time--slider', component_property='value')]
+	[Input(component_id='1-date-picker-single', component_property='date'),
+	 Input(component_id='1-time-slider', component_property='value')]
 )
 def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
 	# Get the time, convert it to the nearest fifteen-minute timestamp
@@ -121,7 +185,7 @@ def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
 
 	f_nearest_ts = datetime.fromtimestamp(nearest_ts).strftime(
 														'%A %d %B %Y, %H:%M:%S')
-	headlines_title = '** Most Read at {} **'.format(f_nearest_ts)
+	headlines_title = '** Most Read on {} **'.format(f_nearest_ts)
 	return [headlines_title, list_of_headlines]
 
 if __name__ == '__main__':
