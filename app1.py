@@ -82,7 +82,7 @@ app.layout = dhtml.Div([
 	dhtml.Div([
 			dhtml.Div(
 	  			dcc.DatePickerSingle(
-	  	    		id='1-date-picker-single',
+	  	    		id='date-picker-single-1',
 	  	    		date=date.fromtimestamp(df['TIMESTAMP'].max()),
 					display_format='Do MMM YYYY'
 	  			),
@@ -90,7 +90,7 @@ app.layout = dhtml.Div([
 			),
 			dhtml.Div(
 				dcc.Slider( # Time slider
-			        id='1-time-slider',
+			        id='time-slider-1',
 			        min=0,
 			        max=24,
 			        value=18,
@@ -105,9 +105,9 @@ app.layout = dhtml.Div([
 
 	dhtml.Br(),
 
-	dcc.Markdown(children='', id='1-headlines-title-output'),
+	dcc.Markdown('', id='headlines-title-output-1'),
 
-	dcc.Markdown(children='', id='1-headlines-output'),
+	dcc.Markdown('', id='headlines-output-1'),
 
 	dhtml.Div(
 		dhtml.Hr(),
@@ -141,14 +141,14 @@ app.layout = dhtml.Div([
 	dhtml.Div([
 		dhtml.Div(
 			dcc.Dropdown(
-	        id='2-time-interval',
+	        id='time-interval-2',
 	        options=[
 	            {'label': '15 minutes', 'value': '15m'},
 	            {'label': '1 hour', 'value': '1h'},
 	            {'label': '3 hours', 'value': '3h'},
 				{'label': '1 day', 'value':'1d'}
 	        ],
-	        value='NYC'
+	        value='1d'
 			),
 		style={'width':'30%', 'display':'inline-block'}
 		),
@@ -157,7 +157,7 @@ app.layout = dhtml.Div([
 		),
 		dhtml.Div(
 			dcc.DatePickerRange(
-				id='2-date-range',
+				id='date-range-2',
 		        min_date_allowed=date.fromtimestamp(df['TIMESTAMP'].min()),
 		        max_date_allowed=date.fromtimestamp(df['TIMESTAMP'].max()),
 		        initial_visible_month=date.fromtimestamp(df['TIMESTAMP'].max()),
@@ -167,6 +167,10 @@ app.layout = dhtml.Div([
 		style={'width':'50%', 'display':'inline-block'}
 		)
 	]),
+
+	dcc.Markdown('', 'confirmation-md-1'),
+
+	dhtml.Br(),
 
 	dhtml.Div(
 		dtable.DataTable(
@@ -193,11 +197,11 @@ style={'width': '60%', 'margin':'auto'}
 # Define callbacks
 # Callback for Viz. 1
 @app.callback( # Most Read on DATETIME
-	[Output(component_id='1-headlines-title-output',
+	[Output(component_id='headlines-title-output-1',
 		 	component_property='children'),
-	Output(component_id='1-headlines-output', component_property='children')],
-	[Input(component_id='1-date-picker-single', component_property='date'),
-	 Input(component_id='1-time-slider', component_property='value')]
+	Output(component_id='headlines-output-1', component_property='children')],
+	[Input(component_id='date-picker-single-1', component_property='date'),
+	 Input(component_id='time-slider-1', component_property='value')]
 )
 def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 	# Get the time, convert it to the nearest fifteen-minute timestamp
@@ -225,15 +229,15 @@ def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 	return [headlines_title, list_of_headlines]
 
 
-#@app.callback(
-#	[Output(component_id='2-table', component_property='data')],
-#	[Input(component_id='2-date-range', component_property='start-date'),
-#	 Input(component_id='2-date-range', component_property='end-date'),
-#	 Input(component_id='2-time-interval', component_property='value')]
-#)
-#def update_vis_2(start_date, end_date, time_interval):
-#
-#	return([df_1.loc[:, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+@app.callback(
+	[Output(component_id='table-2', component_property='data')],
+	[Input(component_id='date-range-2', component_property='start-date'),
+	 Input(component_id='date-range-2', component_property='end-date'),
+	 Input(component_id='time-interval-2', component_property='value')]
+)
+def update_vis_2(start_date, end_date, time_interval):
+
+	return([df_1.loc[:, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
 
 
 if __name__ == '__main__':
