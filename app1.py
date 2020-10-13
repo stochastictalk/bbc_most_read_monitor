@@ -3,7 +3,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as dhtml
-import dash_table as dt
+import dash_table as dtable
 from dash.dependencies import Input, Output
 from datetime import datetime, date, timezone, timedelta
 import plotly.express as px
@@ -29,14 +29,20 @@ for fp in filepaths:
 df = pd.DataFrame(list_of_records)
 df['TIMESTAMP'] = df['TIMESTAMP'].astype(int)
 df['RANK'] = df['RANK'].astype(int)
+df_1 = df.loc[df['RANK']==1, ['TIMESTAMP', 'HEADLINE']] # #1 headlines
+
+# Change column order
+df = df[['TIMESTAMP', 'HEADLINE', 'RANK', 'URL']]
 
 # for testing
-df_test = pd.DataFrame(
-	{
-	 'Feature A':['Cuthbert', 'Hilbert', 'Dilbert'],
-	 'Feature B':[0.5, 0.1, 0.2]
-	}
-)
+df_test = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+
+#pd.DataFrame(
+#	{
+#	 'Feature A':['Cuthbert', 'Hilbert', 'Dilbert'],
+#	 'Feature B':[0.5, 0.1, 0.2]
+#	}
+#)
 
 # Want to develop a tool that has a time slider and renders the headlines
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -162,16 +168,25 @@ app.layout = dhtml.Div([
 	]),
 
 	dhtml.Div(
-		dt.DataTable(
-		    id='2-table',
-		    data=df_test.to_dict('records'),
-		)
+		dtable.DataTable(
+		    id='table',
+		    columns=[{"name": i, "id": i} for i in df_1.columns],
+		    data=df_1.to_dict('records'),
+    		style_table={'overflowX': 'auto'},
+			style_cell_conditional=[
+		        {'if': {'column_id': 'TIMESTAMP'},
+		         'width': '30%'},
+		        {'if': {'column_id': 'HEADLINE'},
+		         'width': '50%'},
+		    ]
+		),
+		style={'width':'100%'}
 	),
 
 	dhtml.Div('hey')
 
 ],
-style={'width': '48%', 'margin':'auto'})
+style={'width': '60%', 'margin':'auto'})
 
 # Define callbacks
 @app.callback( # Most Read on DATETIME
