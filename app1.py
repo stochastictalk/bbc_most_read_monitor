@@ -158,13 +158,14 @@ app.layout = dhtml.Div([
 		dhtml.Div(
 			dcc.DatePickerRange(
 				id='date-range-2',
-		        min_date_allowed=date.fromtimestamp(df['TIMESTAMP'].min()),
-		        max_date_allowed=date.fromtimestamp(df['TIMESTAMP'].max()),
+		        #min_date_allowed=date.fromtimestamp(df['TIMESTAMP'].min()),
+		        #max_date_allowed=date.fromtimestamp(df['TIMESTAMP'].max()),
 		        initial_visible_month=date.fromtimestamp(df['TIMESTAMP'].max()),
-				start_date=date.fromtimestamp(df['TIMESTAMP'].max()-7*24*3600),
-		        end_date=date.fromtimestamp(df['TIMESTAMP'].max())
+				#start_date=date.fromtimestamp(df['TIMESTAMP'].max()-7*24*3600),
+		        #end_date=date.fromtimestamp(df['TIMESTAMP'].max()),
+				display_format='do MMM YYYY'
 			),
-		style={'width':'50%', 'display':'inline-block'}
+		style={'width':'60%', 'display':'inline-block'}
 		)
 	]),
 
@@ -226,6 +227,7 @@ def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 
 	f_nearest_ts = datetime.fromtimestamp(nearest_ts).strftime('%A %d %B %Y, %H:%M:%S')
 	headlines_title = '** Most Read on {} **'.format(f_nearest_ts)
+	#headlines_title=input_yyyy_mm_dd
 	return [headlines_title, list_of_headlines]
 
 
@@ -235,9 +237,22 @@ def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 	 Input(component_id='date-range-2', component_property='end-date'),
 	 Input(component_id='time-interval-2', component_property='value')]
 )
-def update_vis_2(start_date, end_date, time_interval):
-
-	return([df_1.loc[:, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+def update_vis_2(start_date_yyyy_mm_dd: str, end_date_yyyy_mm_dd: str,
+				 time_interval: str):
+	if (start_date_yyyy_mm_dd is not None) and \
+					(end_date_yyyy_mm_dd is not None):
+		start_date_ts = datetime.strptime(start_date_yyyy_mm_dd,
+		 								  "%Y-%m-%d").timestamp()
+		end_date_ts = datetime.strptime(end_date_yyyy_mm_dd,
+										"%Y-%m-%d").timestamp()
+		# .timestamp() returns timestamp at start of day, adjust to end of day
+		end_date_ts = start_date_ts + 24*3600
+										# does this return the beginning or end of the day?
+		ts_mask = (df_1['TIMESTAMP'] > start_date_ts) & \
+		 		  (df_1['TIMESTAMP'] < end_date_ts)
+		return([df_1.loc[ts_mask, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+	else:
+		return([df_1[['TIMESTAMP', 'HEADLINE']].to_dict('records')])
 
 
 if __name__ == '__main__':
