@@ -3,8 +3,8 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as dhtml
-import dash_table as dtable
 from dash.dependencies import Input, Output
+import dash_table as dtable
 from datetime import datetime, date, timezone, timedelta
 import plotly.express as px
 import pandas as pd
@@ -105,9 +105,9 @@ app.layout = dhtml.Div([
 
 	dhtml.Br(),
 
-	dcc.Markdown(children='', id='headlines-title-output'),
+	dcc.Markdown(children='', id='1-headlines-title-output'),
 
-	dcc.Markdown(children='', id='headlines-output'),
+	dcc.Markdown(children='', id='1-headlines-output'),
 
 	dhtml.Div(
 		dhtml.Hr(),
@@ -161,6 +161,7 @@ app.layout = dhtml.Div([
 		        min_date_allowed=date.fromtimestamp(df['TIMESTAMP'].min()),
 		        max_date_allowed=date.fromtimestamp(df['TIMESTAMP'].max()),
 		        initial_visible_month=date.fromtimestamp(df['TIMESTAMP'].max()),
+				start_date=date.fromtimestamp(df['TIMESTAMP'].max()-7*24*3600),
 		        end_date=date.fromtimestamp(df['TIMESTAMP'].max())
 			),
 		style={'width':'50%', 'display':'inline-block'}
@@ -169,15 +170,15 @@ app.layout = dhtml.Div([
 
 	dhtml.Div(
 		dtable.DataTable(
-		    id='table',
-		    columns=[{"name": i, "id": i} for i in df_1.columns],
+		    id='table-2',
+			columns=[{"name": i, "id": i} for i in df_1.columns],
 		    data=df_1.to_dict('records'),
     		style_table={'overflowX': 'auto'},
 			style_cell_conditional=[
-		        {'if': {'column_id': 'TIMESTAMP'},
-		         'width': '30%'},
-		        {'if': {'column_id': 'HEADLINE'},
-		         'width': '50%'},
+		       {'if': {'column_id': 'TIMESTAMP'},
+		        'width': '20%'},
+		       {'if': {'column_id': 'HEADLINE'},
+				'width': '50%'},
 		    ]
 		),
 		style={'width':'100%'}
@@ -186,17 +187,19 @@ app.layout = dhtml.Div([
 	dhtml.Div('hey')
 
 ],
-style={'width': '60%', 'margin':'auto'})
+style={'width': '60%', 'margin':'auto'}
+)
 
 # Define callbacks
+# Callback for Viz. 1
 @app.callback( # Most Read on DATETIME
-	[Output(component_id='headlines-title-output',
+	[Output(component_id='1-headlines-title-output',
 		 	component_property='children'),
-	Output(component_id='headlines-output', component_property='children')],
+	Output(component_id='1-headlines-output', component_property='children')],
 	[Input(component_id='1-date-picker-single', component_property='date'),
 	 Input(component_id='1-time-slider', component_property='value')]
 )
-def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
+def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 	# Get the time, convert it to the nearest fifteen-minute timestamp
 	date_ts = datetime.strptime(input_yyyy_mm_dd, "%Y-%m-%d").timestamp()
 	ts = date_ts + input_hour*3600
@@ -217,10 +220,21 @@ def update_output_div(input_yyyy_mm_dd: str, input_hour: float):
 													for j in range(1, 11)]
 											)
 
-	f_nearest_ts = datetime.fromtimestamp(nearest_ts).strftime(
-														'%A %d %B %Y, %H:%M:%S')
+	f_nearest_ts = datetime.fromtimestamp(nearest_ts).strftime('%A %d %B %Y, %H:%M:%S')
 	headlines_title = '** Most Read on {} **'.format(f_nearest_ts)
 	return [headlines_title, list_of_headlines]
+
+
+#@app.callback(
+#	[Output(component_id='2-table', component_property='data')],
+#	[Input(component_id='2-date-range', component_property='start-date'),
+#	 Input(component_id='2-date-range', component_property='end-date'),
+#	 Input(component_id='2-time-interval', component_property='value')]
+#)
+#def update_vis_2(start_date, end_date, time_interval):
+#
+#	return([df_1.loc[:, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+
 
 if __name__ == '__main__':
 	app.run_server(debug=True)
