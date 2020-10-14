@@ -169,7 +169,7 @@ app.layout = dhtml.Div([
 		)
 	]),
 
-	dcc.Markdown('', 'confirmation-md-1'),
+	dcc.Markdown('', 'confirmation-md-2'),
 
 	dhtml.Br(),
 
@@ -232,7 +232,8 @@ def update_vis_1(input_yyyy_mm_dd: str, input_hour: float):
 
 
 @app.callback(
-	[Output(component_id='table-2', component_property='data')],
+	[Output(component_id='table-2', component_property='data'),
+	 Output(component_id='confirmation-md-2', component_property='children')],
 	[Input(component_id='date-range-2', component_property='start-date'),
 	 Input(component_id='date-range-2', component_property='end-date'),
 	 Input(component_id='time-interval-2', component_property='value')]
@@ -250,9 +251,14 @@ def update_vis_2(start_date_yyyy_mm_dd: str, end_date_yyyy_mm_dd: str,
 										# does this return the beginning or end of the day?
 		ts_mask = (df_1['TIMESTAMP'] > start_date_ts) & \
 		 		  (df_1['TIMESTAMP'] < end_date_ts)
-		return([df_1.loc[ts_mask, ['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+
+		start_date_str = date.fromtimestamp(start_date_ts).strftime('%Y-%m-%d')
+		end_date_str = date.fromtimestamp(end_date_ts).strftime('%Y-%m-%d')
+		return([df_1.loc[ts_mask, ['TIMESTAMP', 'HEADLINE']].to_dict('records'),
+				start_date_str + ' to ' + end_date_str])
 	else:
-		return([df_1[['TIMESTAMP', 'HEADLINE']].to_dict('records')])
+		return([df_1[['TIMESTAMP', 'HEADLINE']].to_dict('records'),
+		       'hello'])
 
 
 if __name__ == '__main__':
