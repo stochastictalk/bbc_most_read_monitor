@@ -1,4 +1,4 @@
-# Headline monitor
+# BBC Most Read monitor
 
 This application logs and visualizes the most-read articles on bbc.co.uk over time.
 
