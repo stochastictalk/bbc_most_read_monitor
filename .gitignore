@@ -5,3 +5,4 @@
 *.txt
 *.json
 /__pycache__
+db_creds.py
