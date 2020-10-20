@@ -66,10 +66,11 @@ def write_to_sql(list_of_headlines_dct):
 	for l in list_of_headlines_dct:
 		sql_command = ('INSERT INTO ' + relation_name +
 					   ' (rank_, headline, url, timestamp_)' +
-					   ' VALUES ({}, \'{}\', \'{}\', {})'.format(l['rank'],
-					   									 l['headline'].replace('\'', '\'\''),
-														 l['url'].replace('\'', '\'\''),
-														 l['timestamp']))
+					   ' VALUES ({}, \'{}\', \'{}\', {})'.format(
+					   						l['rank'],
+					   						l['headline'].replace('\'', '\'\''),
+											l['url'].replace('\'', '\'\''),
+											l['timestamp']))
 		cursor.execute(sql_command)
 
 	conn.commit()
