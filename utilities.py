@@ -52,9 +52,11 @@ def write_to_disk(list_of_headline_dcts: list, dst_dir: str, timestamp: int):
 	with open(dst_dir + '/' + str(timestamp) + '.json', 'w') as file:
 		file.write(json.dumps(list_of_headline_dcts))
 
-def write_to_sql(list_of_headlines_dct):
-	''' Writes a list of headline dicts to SQL relation 'headlines'
+def write_to_sql(list_of_headlines_dct, relation_name='headlines'):
+	''' Writes a list of headline dicts to SQL relation 'relation_name'
 		in db 'bbc_most_read'
+
+		a headline_dct: {'rank':int, 'headline':str, 'url':str, 'timestamp':int}
 	'''
 	conn = 	psycopg2.connect(user=db_creds.user,
 							 password=db_creds.password,
@@ -62,7 +64,6 @@ def write_to_sql(list_of_headlines_dct):
 							 port=db_creds.port,
 							 database=db_creds.database)
 	cursor = conn.cursor()
-	relation_name = 'headlines'
 	for l in list_of_headlines_dct:
 		sql_command = ('INSERT INTO ' + relation_name +
 					   ' (rank_, headline, url, timestamp_)' +
