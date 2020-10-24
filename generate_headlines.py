@@ -3,6 +3,10 @@
 from datetime import date, datetime, timedelta
 import utilities as utils
 from itertools import accumulate
+import requests
+import random
+
+random.seed(1)
 
 def write_synthetic_headlines(start_date: date, end_date: date, period: int):
     ''' Creates PostgreSQL relation 'synthetic_headlines' containing fields
@@ -51,7 +55,17 @@ def write_synthetic_headlines(start_date: date, end_date: date, period: int):
     utils.write_to_sql(iter_of_headline_dcts, relation_name)
 
 def sample_synthetic_headlines(n: int):
-    return ('hello world {}'.format(k+1) for k in range(n))
+    src_url = 'http://shakespeare.mit.edu/Poetry/VenusAndAdonis.html'
+    src_text = requests.get(src_url).text
+    str_to_strip = ['<BR>', '<BLOCKQUOTE>', '</BLOCKQUOTE>']
+    for s in str_to_strip: src_text = src_text.replace(s, ' ')
+    lines = [strip(s) for s in src_text.split(r'\n')]
+    min_line_length = 10
+    filtered_lines = [s for s in lines if len(s) > min_line_length]
+    print('Sampling synthetic headlines from a set of {}.'.format(
+                                                            len(filtered_lines))
+    return(random.choices(filtered_lines, k=n))
+
 
 def sample_synthetic_urls(n: int):
     return ('/news-england-hello-world-{}'.format(k+1) for k in range(n))
