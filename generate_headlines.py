@@ -5,6 +5,8 @@ import utilities as utils
 from itertools import accumulate
 import requests
 import random
+import db_creds
+import psycopg2
 
 random.seed(1)
 
@@ -49,9 +51,18 @@ def write_synthetic_headlines(start_date: date, end_date: date, period: int):
                               'rank':v[2], 'timestamp':v[3]} for v in h_u_r_ts)
 
     # 4. Write the resulting data set to a PostgreSQL relation.
-    #for val in iter_of_headline_dcts:
-    #    print(val)
     relation_name = 'synthetic_headlines'
+    conn = psycopg2.connect(user=db_creds.user,
+							password=db_creds.password,
+						 	host=db_creds.host,
+							port=db_creds.port,
+							database=db_creds.database)
+    cursor = conn.cursor()
+    with open('./create_synthetic_headlines.sql', 'r') as f:
+        create_relation_cmd = f.read()
+    cursor.execute('DROP TABLE {};'.format(relation_name))
+    cursor.execute(create_relation_cmd)
+    conn.commit(); cursor.close(); conn.close()
     utils.write_to_sql(iter_of_headline_dcts, relation_name)
 
 def sample_synthetic_headlines(n: int):
@@ -59,18 +70,16 @@ def sample_synthetic_headlines(n: int):
     src_text = requests.get(src_url).text
     str_to_strip = ['<BR>', '<BLOCKQUOTE>', '</BLOCKQUOTE>']
     for s in str_to_strip: src_text = src_text.replace(s, ' ')
-    lines = [strip(s) for s in src_text.split(r'\n')]
+    lines = [s.strip() for s in src_text.split('\n')]
     min_line_length = 10
     filtered_lines = [s for s in lines if len(s) > min_line_length]
-    print('Sampling synthetic headlines from a set of {}.'.format(
-                                                            len(filtered_lines))
     return(random.choices(filtered_lines, k=n))
 
 
 def sample_synthetic_urls(n: int):
     return ('/news-england-hello-world-{}'.format(k+1) for k in range(n))
 
-start_date = date(2020, 10, 22)
+start_date = date(2020, 10, 21)
 end_date = date(2020, 10, 23)
 period = 5 # minutes
 write_synthetic_headlines(start_date, end_date, period)
